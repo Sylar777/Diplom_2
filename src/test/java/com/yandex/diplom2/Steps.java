@@ -14,10 +14,10 @@ public class Steps {
     private String email;
     private String password;
     private String name;
-    public String bearerToken = "";
+    private String bearerToken = "";
     private Response responseOfUserCreation;
-    public String json;
-    public ArrayList<String> listOfIngredientsID;
+    private String json;
+    private ArrayList<String> listOfIngredientsID;
 
     public Steps(){
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/";
@@ -321,5 +321,33 @@ public class Steps {
         .and()
         .statusCode(code);
         return this;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getBearerToken() {
+        return bearerToken;
+    }
+
+    public Response getResponseOfUserCreation() {
+        return responseOfUserCreation;
+    }
+
+    public String getJson() {
+        return json;
+    }
+
+    public ArrayList<String> getListOfIngredientsID() {
+        return listOfIngredientsID;
     }
 }

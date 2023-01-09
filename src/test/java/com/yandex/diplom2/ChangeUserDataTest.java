@@ -4,7 +4,7 @@ import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 public class ChangeUserDataTest {
 
-    Steps steps;
+    private Steps steps;
 
     @Before
     public void setUp() {

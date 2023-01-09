@@ -6,7 +6,7 @@ import io.qameta.allure.junit4.DisplayName;
 
 public class OrderTest {
 
-    Steps steps;
+    private Steps steps;
 
     @Before
     public void setUp() {
@@ -34,7 +34,7 @@ public class OrderTest {
         steps.registerNewUser()
             .userLogin()
             .getIngredients()
-            .createOrderForUser(true,200,steps.listOfIngredientsID.get(0),steps.listOfIngredientsID.get(1));
+            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class OrderTest {
     @Description("Send POST request to create Order")
     public void notLoginedUserCanCreateOrderWithIngredientsTest(){
         steps.getIngredients()
-            .createOrderForUser(true,200,steps.listOfIngredientsID.get(0),steps.listOfIngredientsID.get(1));
+            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class OrderTest {
         steps.registerNewUser()
             .userLogin()
             .getIngredients()
-            .createOrderForUser(true,200,steps.listOfIngredientsID.get(0),steps.listOfIngredientsID.get(1))
+            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1))
             .getUsersOrders(true,200);
     }
 
@@ -85,7 +85,7 @@ public class OrderTest {
     public void getListOfOrdersForNotLoginedUserTest(){
         steps.registerNewUser()
             .getIngredients()
-            .createOrderForUser(true,200,steps.listOfIngredientsID.get(0),steps.listOfIngredientsID.get(1))
+            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1))
             .getUsersOrders(true,200);
     }
 }
