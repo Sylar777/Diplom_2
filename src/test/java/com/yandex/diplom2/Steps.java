@@ -6,7 +6,6 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,8 +13,9 @@ public class Steps {
     private String email;
     private String password;
     private String name;
-    private String bearerToken = "";
     private Response responseOfUserCreation;
+    private Response responseOfUserLogin;
+    private Response responseOfUserNotRegistrationAndLogin;
     private String json;
     private ArrayList<String> listOfIngredientsID;
 
@@ -27,31 +27,27 @@ public class Steps {
     }
 
     @Step
-    public void deleteUser(){
-        if(!bearerToken.isEmpty()){
-            given()
+    public Response deleteUser(){
+        String Bearer = TestHelper.bearerOfRegicteredOrLoginedUser(responseOfUserCreation, responseOfUserLogin);
+        if(Bearer != null){
+            responseOfUserNotRegistrationAndLogin = given()
             .headers(
                 "Authorization",
-                "Bearer " + bearerToken,
+                "Bearer " + Bearer,
                 "Content-Type",
                 ContentType.JSON,
                 "Accept",
                 ContentType.JSON
                 )
             .when()
-            .delete("/api/auth/user")
-            .then()
-            .assertThat()
-            .body("success", equalTo(true))
-            .and()
-            .statusCode(202);
+            .delete(StatusesAndUrls.DELETE_USER);
 
-            bearerToken = "";
-        }
+            return responseOfUserNotRegistrationAndLogin;
+        } else return null;
     }
 
     @Step
-    public Steps registerNewUser(){
+    public Response registerNewUser(){
         json = "{\"email\":\"" + email + "\", \"password\": \"" + password + "\", \"name\": \"" + name + "\" }";
 
         responseOfUserCreation = given()
@@ -59,112 +55,78 @@ public class Steps {
             .and()
             .body(json)
             .when()
-            .post("api/auth/register");
+            .post(StatusesAndUrls.REGISTER_USER);
 
-        responseOfUserCreation
-            .then()
-            .assertThat()
-            .body("success", equalTo(true))
-            .and()
-            .statusCode(200);
-
-        bearerToken = TestHelper.bearerToken(responseOfUserCreation.asString());
-
-        return this;
+        return responseOfUserCreation;
     }
 
     @Step
-    public Steps registerExistUser(){
+    public Response registerExistUser(){
         json = "{\"email\":\"" + email + "\", \"password\": \"" + password + "\", \"name\": \"ds\" }";
 
-        responseOfUserCreation = given()
+        responseOfUserNotRegistrationAndLogin = given()
             .header("Content-type", "application/json")
             .and()
             .body(json)
             .when()
-            .post("api/auth/register");
+            .post(StatusesAndUrls.REGISTER_USER);
 
-        responseOfUserCreation
-            .then()
-            .assertThat()
-            .body("success", equalTo(false))
-            .and()
-            .statusCode(403);
-
-            return this;
+            return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps registerUserWOAllData(){
+    public Response registerUserWOAllData(){
         json = "{\"email\":\"" + email + "\", \"name\": \"ds\" }";
 
-        responseOfUserCreation = given()
+        responseOfUserNotRegistrationAndLogin = given()
             .header("Content-type", "application/json")
             .and()
             .body(json)
             .when()
-            .post("api/auth/register");
+            .post(StatusesAndUrls.REGISTER_USER);
 
-        responseOfUserCreation
-            .then()
-            .assertThat()
-            .body("success", equalTo(false))
-            .and()
-            .statusCode(403);
+            System.out.println(responseOfUserNotRegistrationAndLogin.asString());
 
-            return this;
+            return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps userLogin(){
+    public Response userLogin(){
         json = "{\"email\":\"" + email + "\", \"password\": \"" + password + "\"}";
 
-        responseOfUserCreation = given()
+        responseOfUserLogin = given()
             .header("Content-type", "application/json")
             .and()
             .body(json)
             .when()
-            .post("api/auth/login");
+            .post(StatusesAndUrls.LOGIN_USER);
 
-        responseOfUserCreation
-            .then()
-            .assertThat()
-            .body("success", equalTo(true))
-            .and()
-            .statusCode(200);
-
-        bearerToken = TestHelper.bearerToken(responseOfUserCreation.asString());
-
-        return this;
+        return responseOfUserLogin;
     }
 
     @Step
-    public Steps userLoginWithWrongData(){
+    public Response userLoginWithWrongData(){
         json = "{\"email\":\"" + email + "\", \"password\": \"" + password + "test" + "\"}";
 
-        given()
+        responseOfUserNotRegistrationAndLogin = given()
         .header("Content-type", "application/json")
         .and()
         .body(json)
         .when()
-        .post("api/auth/login")
-        .then()
-        .assertThat()
-        .body("success", equalTo(false))
-        .and()
-        .statusCode(401);
+        .post(StatusesAndUrls.LOGIN_USER);
 
-        return this;
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps changeName(boolean status, int code){
+    public Response changeName(boolean status, int code){
         json = "{\"email\":\"" + email + "\", \"password\": \"" + password + "\", \"name\": \"" + name + "test" + "\" }";
+        String Bearer = TestHelper.bearerOfRegicteredOrLoginedUser(responseOfUserCreation, responseOfUserLogin);
 
-        given()
+        responseOfUserNotRegistrationAndLogin = given()
         .headers(
             "Authorization",
-            "Bearer " + bearerToken,
+            "Bearer " + Bearer,
             "Content-Type",
             ContentType.JSON,
             "Accept",
@@ -173,24 +135,20 @@ public class Steps {
         .and()
         .body(json)
         .when()
-        .patch("api/auth/user")
-        .then()
-        .assertThat()
-        .body("success", equalTo(status))
-        .and()
-        .statusCode(code);
+        .patch(StatusesAndUrls.DATA_USER);
 
-        return this;
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps changePassword(boolean status, int code){
+    public Response changePassword(boolean status, int code){
         json = "{\"email\":\"" + email + "\", \"password\": \"" + password + "test" + "\", \"name\": \"" + name + "\" }";
+        String Bearer = TestHelper.bearerOfRegicteredOrLoginedUser(responseOfUserCreation, responseOfUserLogin);
 
-        given()
+        responseOfUserNotRegistrationAndLogin = given()
         .headers(
             "Authorization",
-            "Bearer " + bearerToken,
+            "Bearer " + Bearer,
             "Content-Type",
             ContentType.JSON,
             "Accept",
@@ -199,24 +157,20 @@ public class Steps {
         .and()
         .body(json)
         .when()
-        .patch("api/auth/user")
-        .then()
-        .assertThat()
-        .body("success", equalTo(status))
-        .and()
-        .statusCode(code);
+        .patch(StatusesAndUrls.DATA_USER);
 
-        return this;
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps changeEmail(boolean status, int code){
+    public Response changeEmail(boolean status, int code){
         json = "{\"email\":\"" + email +  "test" + "\", \"password\": \"" + password + "\", \"name\": \"" + name + "\" }";
+        String Bearer = TestHelper.bearerOfRegicteredOrLoginedUser(responseOfUserCreation, responseOfUserLogin);
 
-        given()
+        responseOfUserNotRegistrationAndLogin = given()
         .headers(
             "Authorization",
-            "Bearer " + bearerToken,
+            "Bearer " + Bearer,
             "Content-Type",
             ContentType.JSON,
             "Accept",
@@ -225,47 +179,36 @@ public class Steps {
         .and()
         .body(json)
         .when()
-        .patch("api/auth/user")
-        .then()
-        .assertThat()
-        .body("success", equalTo(status))
-        .and()
-        .statusCode(code);
+        .patch(StatusesAndUrls.DATA_USER);
 
-        return this;
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps getIngredients(){
-        responseOfUserCreation = given()
+    public Response getIngredients(){
+        responseOfUserNotRegistrationAndLogin = given()
             .header("Content-type", "application/json")
             .when()
-            .get("api/ingredients");
+            .get(StatusesAndUrls.INGREDIENTS_USER);
 
-        responseOfUserCreation
-            .then()
-            .assertThat()
-            .body("success", equalTo(true))
-            .and()
-            .statusCode(200);
+            listOfIngredientsID = TestHelper.ingredients(responseOfUserNotRegistrationAndLogin.asString());
 
-            listOfIngredientsID = TestHelper.ingredients(responseOfUserCreation.asString());
-
-        return this;
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps createOrderForUser(boolean status, int code, String id1, String id2){
+    public Response createOrderForUser(boolean status, int code, String id1, String id2){
         if(!(id1.isEmpty() && id2.isEmpty())){
             json = "{\"ingredients\":[\"" + id1 + "\", \"" + id2 + "\"] }";
         } else {
             json = "";
         }
+        String Bearer = TestHelper.bearerOfRegicteredOrLoginedUser(responseOfUserCreation, responseOfUserLogin);
 
-        given()
+        responseOfUserNotRegistrationAndLogin = given()
         .headers(
             "Authorization",
-            "Bearer " + bearerToken,
+            "Bearer " + Bearer,
             "Content-Type",
             ContentType.JSON,
             "Accept",
@@ -274,53 +217,57 @@ public class Steps {
         .and()
         .body(json)
         .when()
-        .post("api/orders")
-        .then()
-        .assertThat()
-        .body("success", equalTo(status))
-        .and()
-        .statusCode(code);
+        .post(StatusesAndUrls.ORDERS_USER);
 
-        return this;
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps getAllOrders(){
-        responseOfUserCreation = given()
+    public Response getAllOrders(){
+        responseOfUserNotRegistrationAndLogin = given()
             .header("Content-type", "application/json")
             .when()
-            .get("api/orders");
+            .get(StatusesAndUrls.ORDERS_USER);
 
-        responseOfUserCreation
-            .then()
-            .assertThat()
-            .body("success", equalTo(true))
-            .and()
-            .statusCode(200);
-
-
-        return this;
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     @Step
-    public Steps getUsersOrders(boolean status, int code){
-        given()
+    public Response getUsersOrders(boolean status, int code){
+        String Bearer = TestHelper.bearerOfRegicteredOrLoginedUser(responseOfUserCreation, responseOfUserLogin);
+
+        responseOfUserNotRegistrationAndLogin = given()
         .headers(
             "Authorization",
-            "Bearer " + bearerToken,
+            "Bearer " + Bearer,
             "Content-Type",
             ContentType.JSON,
             "Accept",
             ContentType.JSON
             )
         .when()
-        .get("api/orders")
-        .then()
-        .assertThat()
-        .body("success", equalTo(status))
-        .and()
-        .statusCode(code);
-        return this;
+        .get(StatusesAndUrls.ORDERS_USER);
+
+        return responseOfUserNotRegistrationAndLogin;
+    }
+
+    @Step
+    public void checkResponse(Response stepResponse, Boolean success, int statusCode){
+        if(TestHelper.bearerOfRegicteredOrLoginedUser(responseOfUserCreation, responseOfUserLogin) != null){
+            stepResponse
+                .then()
+                .assertThat()
+                .body("success", equalTo(success))
+                .and()
+                .statusCode(statusCode);
+        } else {
+            stepResponse
+                .then()
+                .assertThat()
+                .body("success", equalTo(false))
+                .and()
+                .statusCode(403);
+        }
     }
 
     public String getEmail() {
@@ -335,12 +282,16 @@ public class Steps {
         return name;
     }
 
-    public String getBearerToken() {
-        return bearerToken;
-    }
-
     public Response getResponseOfUserCreation() {
         return responseOfUserCreation;
+    }
+
+    public Response getResponseOfUserLogin() {
+        return responseOfUserLogin;
+    }
+
+    public Response getResponseOfUserNotRegistrationAndLogin() {
+        return responseOfUserNotRegistrationAndLogin;
     }
 
     public String getJson() {
@@ -350,4 +301,5 @@ public class Steps {
     public ArrayList<String> getListOfIngredientsID() {
         return listOfIngredientsID;
     }
+
 }

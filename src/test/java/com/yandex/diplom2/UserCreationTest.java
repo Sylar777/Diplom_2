@@ -16,6 +16,7 @@ public class UserCreationTest {
     @After
     public void clear(){
         steps.deleteUser();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
@@ -23,14 +24,17 @@ public class UserCreationTest {
     @Description("Send POST request to create user")
     public void userCanBeCreatedTest(){
         steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
     }
 
     @Test
     @DisplayName("Check that user with the same credentials can't be created")
     @Description("Send POST request to create user second time")
     public void cantBeCreatedTheSameUserTest(){
-        steps.registerNewUser()
-            .registerExistUser();
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.registerExistUser();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_FORBIDDEN);
     }
 
     @Test
@@ -38,5 +42,6 @@ public class UserCreationTest {
     @Description("Send POST request to create user")
     public void userCantBeCreatedWOAllInfoTest(){
         steps.registerUserWOAllData();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_FORBIDDEN);
     }
 }

@@ -15,21 +15,27 @@ public class UserLoginTest {
     @After
     public void clear(){
         steps.deleteUser();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
     @DisplayName("Check that user can login")
     @Description("Send POST request to login user")
     public void userCanLoginTest(){
-        steps.registerNewUser()
-            .userLogin();
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.userLogin();
+        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
     @Test
     @DisplayName("Check that user can't be login with wrong data")
     @Description("Send POST request to login user")
     public void userCantLoginWithWrongDataTest(){
-        steps.registerNewUser()
-            .userLoginWithWrongData();
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.userLoginWithWrongData();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
+
     }
 }

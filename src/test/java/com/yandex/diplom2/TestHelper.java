@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import io.restassured.response.Response;
+
 public class TestHelper {
 
     public static String bearerToken(String str){
@@ -33,5 +35,13 @@ public class TestHelper {
             }
         }
         return listOfIngredientsID;
+    }
+
+    public static String bearerOfRegicteredOrLoginedUser(Response responseOfUserCreation, Response responseOfUserLogin){
+        if(responseOfUserLogin == null && responseOfUserCreation != null){
+            return TestHelper.bearerToken(responseOfUserCreation.asString());
+        } else if (responseOfUserLogin != null){
+            return TestHelper.bearerToken(responseOfUserLogin.asString());
+        } else return null;
     }
 }

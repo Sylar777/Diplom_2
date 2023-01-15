@@ -16,76 +16,106 @@ public class OrderTest {
     @After
     public void clear(){
         steps.deleteUser();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
     @DisplayName("Check that logined User can't create Order w/o ingredients")
     @Description("Send POST request to create Order")
     public void loginedUserCantCreateOrderWOIngredientsTest(){
-        steps.registerNewUser()
-            .userLogin()
-            .createOrderForUser(false,400,"","");
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.userLogin();
+        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"","");
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
     @Test
     @DisplayName("Check that logined User can create Order with ingredients")
     @Description("Send POST request to create Order")
     public void loginedUserCanCreateOrderWithIngredientsTest(){
-        steps.registerNewUser()
-            .userLogin()
-            .getIngredients()
-            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.userLogin();
+        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.getIngredients();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
     @Test
     @DisplayName("Check that logined User can't create Order with wrond ingredient ids")
     @Description("Send POST request to create Order")
     public void loginedUserCantCreateOrderWithWrongIngredientIdsTest(){
-        steps.registerNewUser()
-            .userLogin()
-            .createOrderForUser(false,400,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.userLogin();
+        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
     @Test
     @DisplayName("Check that not logined User can't create Order w/o ingredients")
     @Description("Send POST request to create Order")
     public void notLoginedUserCantCreateOrderWOIngredientsTest(){
-        steps.createOrderForUser(false,400,"","");
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"","");
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
     @Test
     @DisplayName("Check that not logined User can create Order with ingredients")
     @Description("Send POST request to create Order")
     public void notLoginedUserCanCreateOrderWithIngredientsTest(){
-        steps.getIngredients()
-            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.getIngredients();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
     @Test
     @DisplayName("Check that not logined User can't create Order with wrond ingredient ids")
     @Description("Send POST request to create Order")
     public void notLoginedUserCantCreateOrderWithWrongIngredientIdsTest(){
-        steps.createOrderForUser(false,400,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
     @Test
     @DisplayName("Check that logined User can get list of orders")
     @Description("Send GET request to get Orders")
     public void getListOfOrdersForLoginedUserTest(){
-        steps.registerNewUser()
-            .userLogin()
-            .getIngredients()
-            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1))
-            .getUsersOrders(true,200);
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.userLogin();
+        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.getIngredients();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.getUsersOrders(true,StatusesAndUrls.STATUS_OK);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
     @Test
     @DisplayName("Check that not logined User can get list of orders")
     @Description("Send GET request to get Orders")
     public void getListOfOrdersForNotLoginedUserTest(){
-        steps.registerNewUser()
-            .getIngredients()
-            .createOrderForUser(true,200,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1))
-            .getUsersOrders(true,200);
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.getIngredients();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.getUsersOrders(true,StatusesAndUrls.STATUS_OK);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 }

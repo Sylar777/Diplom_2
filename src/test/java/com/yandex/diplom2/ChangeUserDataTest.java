@@ -14,17 +14,23 @@ public class ChangeUserDataTest {
     @After
     public void clear(){
         steps.deleteUser();
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
     @DisplayName("Check that logined User can change all data")
     @Description("Send PATCH request to change user's data")
     public void loginedUserCanChangeNameDataTest(){
-        steps.registerNewUser()
-            .userLogin()
-            .changeName(true, 200)
-            .changePassword(true, 200)
-            .changeEmail(true, 200);
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.userLogin();
+        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.changeName(true, StatusesAndUrls.STATUS_OK);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.changePassword(true, StatusesAndUrls.STATUS_OK);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
+        steps.changeEmail(true, StatusesAndUrls.STATUS_OK);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
     /*
@@ -42,23 +48,29 @@ public class ChangeUserDataTest {
     @DisplayName("Check that not logined User can't change name Data")
     @Description("Send PATCH request to change user's data")
     public void notLoginedUserCantChangeNameDataTest(){
-        steps.registerNewUser()
-            .changeName(false, 401);
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.changeName(false, StatusesAndUrls.STATUS_UNAUTHORIZED);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
     }
 
     @Test
     @DisplayName("Check that not logined User can't change password Data")
     @Description("Send PATCH request to change user's data")
     public void notLoginedUserCantChangePasswordDataTest(){
-        steps.registerNewUser()
-            .changePassword(false, 401);
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.changePassword(false, StatusesAndUrls.STATUS_UNAUTHORIZED);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
     }
 
     @Test
     @DisplayName("Check that not logined User can't change email Data")
     @Description("Send PATCH request to change user's data")
     public void notLoginedUserCantChangeEmailDataTest(){
-        steps.registerNewUser()
-            .changeEmail(false, 401);
+        steps.registerNewUser();
+        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
+        steps.changeEmail(false, StatusesAndUrls.STATUS_UNAUTHORIZED);
+        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
     }
 }
