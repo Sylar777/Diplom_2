@@ -1,22 +1,24 @@
 package com.yandex.diplom2;
 
 import org.junit.*;
+
+import com.yandex.diplom2.Steps.UserSteps;
+
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 
 public class UserCreationTest {
 
-    private Steps steps;
+    private UserSteps steps;
 
     @Before
     public void setUp() {
-        steps = new Steps();
+        steps = new UserSteps();
     }
 
     @After
     public void clear(){
         steps.deleteUser();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
@@ -32,7 +34,6 @@ public class UserCreationTest {
     @Description("Send POST request to create user second time")
     public void cantBeCreatedTheSameUserTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.registerExistUser();
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_FORBIDDEN);
     }

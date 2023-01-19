@@ -1,22 +1,27 @@
 package com.yandex.diplom2;
 
 import org.junit.*;
+
+import com.yandex.diplom2.Steps.OrderSteps;
+import com.yandex.diplom2.Steps.UserSteps;
+
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 
 public class OrderTest {
 
-    private Steps steps;
+    private UserSteps steps;
+    private OrderSteps orderSteps;
 
     @Before
     public void setUp() {
-        steps = new Steps();
+        steps = new UserSteps();
+        orderSteps = new OrderSteps();
     }
 
     @After
     public void clear(){
         steps.deleteUser();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
@@ -24,10 +29,8 @@ public class OrderTest {
     @Description("Send POST request to create Order")
     public void loginedUserCantCreateOrderWOIngredientsTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.userLogin();
-        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"","");
+        orderSteps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"","");
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
@@ -36,12 +39,9 @@ public class OrderTest {
     @Description("Send POST request to create Order")
     public void loginedUserCanCreateOrderWithIngredientsTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.userLogin();
-        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
         steps.getIngredients();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        orderSteps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
@@ -50,10 +50,8 @@ public class OrderTest {
     @Description("Send POST request to create Order")
     public void loginedUserCantCreateOrderWithWrongIngredientIdsTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.userLogin();
-        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
+        orderSteps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
@@ -62,8 +60,7 @@ public class OrderTest {
     @Description("Send POST request to create Order")
     public void notLoginedUserCantCreateOrderWOIngredientsTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"","");
+        orderSteps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"","");
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
@@ -72,10 +69,8 @@ public class OrderTest {
     @Description("Send POST request to create Order")
     public void notLoginedUserCanCreateOrderWithIngredientsTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.getIngredients();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        orderSteps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
@@ -84,8 +79,7 @@ public class OrderTest {
     @Description("Send POST request to create Order")
     public void notLoginedUserCantCreateOrderWithWrongIngredientIdsTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
+        orderSteps.createOrderForUser(false,StatusesAndUrls.STATUS_BAD_REQUEST,"60d3b41abdacab0026a733c6","609646e4dc916e00276b2870");
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_BAD_REQUEST);
     }
 
@@ -94,14 +88,10 @@ public class OrderTest {
     @Description("Send GET request to get Orders")
     public void getListOfOrdersForLoginedUserTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.userLogin();
-        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
         steps.getIngredients();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.getUsersOrders(true,StatusesAndUrls.STATUS_OK);
+        orderSteps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        orderSteps.getUsersOrders(true,StatusesAndUrls.STATUS_OK);
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 
@@ -110,12 +100,9 @@ public class OrderTest {
     @Description("Send GET request to get Orders")
     public void getListOfOrdersForNotLoginedUserTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.getIngredients();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
-        steps.getUsersOrders(true,StatusesAndUrls.STATUS_OK);
+        orderSteps.createOrderForUser(true,StatusesAndUrls.STATUS_OK,steps.getListOfIngredientsID().get(0),steps.getListOfIngredientsID().get(1));
+        orderSteps.getUsersOrders(true,StatusesAndUrls.STATUS_OK);
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
 }

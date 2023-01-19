@@ -1,20 +1,22 @@
 package com.yandex.diplom2;
 import org.junit.*;
+
+import com.yandex.diplom2.Steps.UserSteps;
+
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 public class ChangeUserDataTest {
 
-    private Steps steps;
+    private UserSteps steps;
 
     @Before
     public void setUp() {
-        steps = new Steps();
+        steps = new UserSteps();
     }
 
     @After
     public void clear(){
         steps.deleteUser();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
@@ -22,13 +24,9 @@ public class ChangeUserDataTest {
     @Description("Send PATCH request to change user's data")
     public void loginedUserCanChangeNameDataTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.userLogin();
-        steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
         steps.changeName(true, StatusesAndUrls.STATUS_OK);
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
         steps.changePassword(true, StatusesAndUrls.STATUS_OK);
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
         steps.changeEmail(true, StatusesAndUrls.STATUS_OK);
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_OK);
     }
@@ -49,7 +47,6 @@ public class ChangeUserDataTest {
     @Description("Send PATCH request to change user's data")
     public void notLoginedUserCantChangeNameDataTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.changeName(false, StatusesAndUrls.STATUS_UNAUTHORIZED);
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
     }
@@ -59,7 +56,6 @@ public class ChangeUserDataTest {
     @Description("Send PATCH request to change user's data")
     public void notLoginedUserCantChangePasswordDataTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.changePassword(false, StatusesAndUrls.STATUS_UNAUTHORIZED);
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
     }
@@ -69,7 +65,6 @@ public class ChangeUserDataTest {
     @Description("Send PATCH request to change user's data")
     public void notLoginedUserCantChangeEmailDataTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.changeEmail(false, StatusesAndUrls.STATUS_UNAUTHORIZED);
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
     }

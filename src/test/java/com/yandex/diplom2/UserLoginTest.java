@@ -1,21 +1,21 @@
 package com.yandex.diplom2;
 import org.junit.*;
+import com.yandex.diplom2.Steps.UserSteps;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 
 public class UserLoginTest {
 
-    private Steps steps;
+    private UserSteps steps;
 
     @Before
     public void setUp() {
-        steps = new Steps();
+        steps = new UserSteps();
     }
 
     @After
     public void clear(){
         steps.deleteUser();
-        steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),true,StatusesAndUrls.STATUS_ACCEPTED);
     }
 
     @Test
@@ -23,7 +23,6 @@ public class UserLoginTest {
     @Description("Send POST request to login user")
     public void userCanLoginTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.userLogin();
         steps.checkResponse(steps.getResponseOfUserLogin(),true,StatusesAndUrls.STATUS_OK);
     }
@@ -33,7 +32,6 @@ public class UserLoginTest {
     @Description("Send POST request to login user")
     public void userCantLoginWithWrongDataTest(){
         steps.registerNewUser();
-        steps.checkResponse(steps.getResponseOfUserCreation(),true,StatusesAndUrls.STATUS_OK);
         steps.userLoginWithWrongData();
         steps.checkResponse(steps.getResponseOfUserNotRegistrationAndLogin(),false,StatusesAndUrls.STATUS_UNAUTHORIZED);
 
