@@ -1,4 +1,4 @@
-# Diploma Project: API Testing for Stellar Burgers
+# Diploma Project (part №2): API Testing for Stellar Burgers 
 
 ## Overview
 This project focuses on testing the API endpoints of the Stellar Burgers service. The API documentation provides a full overview of all the available endpoints, but the tests are focused only on the required endpoints as specified in the assignment.
